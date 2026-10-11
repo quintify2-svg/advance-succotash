@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Advance</title>
+<style>html, body { margin: 0; height: 100%; background: #2f7fd8; }</style>
+</head>
+<body>
+<script>
+// Loads the game's HTML from the cloud (Upstash, through the Worker) and runs it as this page.
+// The last copy is kept on this device so the game still opens when the server can't be reached.
+(async function () {
+  const SERVER = "https://advanced.quintify2.workers.dev";
+  const CACHE = "advance-launcher-html";
+  const run = (html) => { document.open(); document.write(html); document.close(); };
+  try {
+    const r = await fetch(SERVER + "/game", { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const html = await r.text();
+    try { localStorage.setItem(CACHE, html); } catch (e) {}
+    run(html);
+  } catch (e) {
+    let html = null;
+    try { html = localStorage.getItem(CACHE); } catch (err) {}
+    if (html) run(html);
+    else document.body.innerHTML = '<p style="font:600 18px sans-serif;color:#fff;text-align:center;margin-top:40vh">Could not load the game (' + e.message + '). Check your connection and refresh.</p>';
+  }
+})();
+</script>
+</body>
+</html>
